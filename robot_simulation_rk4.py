@@ -1,6 +1,18 @@
 from math import *
 from numpy import *
 import matplotlib.pyplot as plt
+from datetime import datetime
+import os
+
+h = 0.1
+t = 0
+g = 0.01
+times = [0]
+
+FOLDER_PATH = f"Output Files/{datetime.today().year}-{str(datetime.today().month).zfill(2)}-{str(datetime.today().day).zfill(2)}_{str(datetime.today().hour).zfill(2)}_{str(datetime.today().minute).zfill(2)}_{str(datetime.today().second).zfill(2)}"
+
+os.mkdir(FOLDER_PATH)
+
 def M(x,y,m):
 	s = 0
 	for i in range(x,y+1):
@@ -30,7 +42,7 @@ def Mtrx(x,y,N,l,m,theta):
 def Fatrx(p,N,thetaf,u,KP,KD,KI):
 	return KP[p-1] * (thetaf[p-1] - u[N+p-1]) - KD[p-1] * u[2*N+p-1] + KI[p-1] * u[p-1]
 
-# returns c(theta,dottheta), G(theta), and M(theta) as a tuple
+# returns c(theta,dottheta), G(theta), M(theta), and F-hat as a tuple
 def create_matrices(N,l,m,g,u,KP,KD,KI,thetaf):
 	# u = [x1,x2,...,xN,t1,t2,...,tN,d1,d2,...,dN] = [u1,u2,...,u3N] -> [u[1-1=0],u[1],...,u[3N-1]]
 	x, theta, dottheta = array_split(array(u),3)
@@ -47,10 +59,27 @@ def create_matrices(N,l,m,g,u,KP,KD,KI,thetaf):
 			mtrx[i].append(Mtrx(i+1,j+1,N,l,m,theta))
 	return ctrx,gtrx,mtrx,fatrx
 
-h = 0.01
-t = 0
-g = 0.01
-times = [0]
+def rk4():
+	H = []
+	# Process k1 as Euler's Method
+	for j in range(0,N):
+		H.append(thetaf[j]-u[N+j])
+	for j in range(0,N):
+		H.append(u[2*N+j])
+	for j in ddt:
+		H.append(j)
+
+	# Now do the rest
+	for i in range(0,N):
+		k2 = H[i] + h/2 * H[N+i]
+		k3 = k2 + h**2 / 4 * H[2*N+i]
+		k4 = H[i] + h*H[N+i] + h**2 / 2 * H[2*N+i] + h**3 / 4 * ddt[i]
+		H[i] += 2*k2 + 2*k3 + k4
+
+	H = array(H)
+	return H
+
+
 
 # USER INPUTS
 
@@ -69,6 +98,9 @@ STEPS = 1000
 
 SAVE_FIG = False
 
+if SAVE_FIG:
+	os.mkdir(FOLDER_PATH + "/Images")
+
 #-- BEGIN PROGRAM --#
 
 #-- FILL IN OPTIONAL PARAMETERS --#
@@ -78,6 +110,7 @@ if len(m) < N:
 if len(l) < N:
 	for i in range(len(l),N):
 		l.append(1)
+# Begin Control
 if len(KP) < N:
 	for i in range(len(KP),N):
 		KP.append(10)
@@ -87,6 +120,7 @@ if len(KD) < N:
 if len(KI) < N:
 	for i in range(len(KI),N):
 		KI.append(10)
+# End Control
 if len(u) < 3*N:
 	for i in range(len(u),3*N):
 		u.append(0)
@@ -98,27 +132,20 @@ if STEPS == -1:
 for i in range(0,STEPS):
 	ctrx,gtrx,mtrx,fatrx = create_matrices(N,l,m,g,u,KP,KD,KI,thetaf)
 	phi = matmul(-linalg.inv(mtrx),array(ctrx) + array(gtrx)) + array(fatrx)
-	# print(phi)
+
 	F = matmul(mtrx,fatrx)
-	# print(F)
+
 	tau = transpose(F)[0]
 	ddt = transpose(phi)[0]
-	H = []
-	for j in range(0,N):
-		H.append(thetaf[j]-u[N+j])
-	for j in range(0,N):
-		H.append(u[2*N+j])
-	for j in ddt:
-		H.append(j)
-	H = array(H)
-	u = u + multiply(H,h)
+
+	u = u + multiply(rk4(),h/6)
 	times.append(h + times[-1])
 	o.append(u.tolist())
 figure = plt.figure()
 for i in range(0,N):
 	positions = []
 	errors = []
-	file = open(f'{N}_link_pos{i+1}.txt','w')
+	file = open(f'{FOLDER_PATH}/{N}_link_pos{i+1}.txt','w')
 	for x in o:
 		errors.append(x[i])
 		positions.append([l[i]*cos(x[N+i]),l[i]*sin(x[N+i])])
@@ -126,6 +153,6 @@ for i in range(0,N):
 	plt.suptitle(f'Error for {chr(1012)}{i+1}')
 	plt.plot(times,errors)
 	if SAVE_FIG:
-		plt.savefig(f'{N}_link_err{i+1}_{thetaf[i]}.png')
+		plt.savefig(f'{FOLDER_PATH}/Images/{N}_link_err{i+1}_{thetaf[i]}.png')
 	plt.show()
 	plt.pause(0.001)
