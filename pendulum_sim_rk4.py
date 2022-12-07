@@ -106,6 +106,11 @@ for i in range(0,STEPS):
 
 	F = matmul(mtrx,fatrx)
 
+	print(F)
+	print(phi)
+	exit()
+	
+
 	tau = transpose(F)[0]
 	ddt = transpose(phi)[0]
 
