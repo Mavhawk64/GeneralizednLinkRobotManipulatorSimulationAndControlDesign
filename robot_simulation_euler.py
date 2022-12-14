@@ -61,8 +61,8 @@ times = [0]
 
 # USER INPUTS
 
-N = 3
-thetaf = [pi / 4, pi / 4, pi / 4]
+N = 4
+thetaf = [pi / 2, 0, pi / 2, pi / 3]
 
 # OPTIONAL USER INPUTS
 
@@ -72,7 +72,7 @@ KP = []
 KD = []
 KI = []
 u = []
-STEPS = 1000
+STEPS = 2000
 
 SAVE_FIG = True
 

@@ -61,18 +61,18 @@ times = [0]
 
 # USER INPUTS
 
-N = 3
-thetaf = [pi / 4, pi / 4, pi / 4]
+N = 6
+thetaf = [pi / 8,  pi / 4, 3 * pi / 8, pi / 2, 5 * pi / 8, 3 * pi / 4]
 
 # OPTIONAL USER INPUTS
 
 m = []
-l = []
+l = [1,1,0.25,0.125,0.125,0.0625]
 KP = []
 KD = []
 KI = []
 u = []
-STEPS = 1000
+STEPS = 2000
 
 SAVE_FIG = True
 
@@ -159,7 +159,7 @@ figure = plt.figure()
 for i in range(0,N):
 	positions = []
 	errors = []
-	file = open(f'{FOLDER_PATH}/{N}_link_pos{i+1}.txt','w')
+	file = open(f'{FOLDER_PATH}/{N}_link_rk4_pos{i+1}.txt','w')
 	for x in o:
 		errors.append(x[i])
 		positions.append([l[i]*cos(x[N+i]),l[i]*sin(x[N+i])])
