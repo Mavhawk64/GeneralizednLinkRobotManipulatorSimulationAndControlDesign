@@ -47,10 +47,11 @@ for x in o:
 	for i in range(0,N):
 		the_positions[i].append([l[i]*cos(x[i]),l[i]*sin(x[i])])
 
-
-
-
 for i in range(0,N):
-	f = open(f"out{i}.txt","w")
-	f.write(str(the_positions[i]))
-	f.close()
+	print(the_positions[i])
+
+
+# for i in range(0,N):
+# 	f = open(f"out{i}.txt","w")
+# 	f.write(str(the_positions[i]))
+# 	f.close()

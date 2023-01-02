@@ -1,3 +1,11 @@
+# Note on how to use this program...
+# It has been a long time since I have used this, but when I run it as is, it will print out the
+# equations for the Lagrange equations for an N-link manipulator.
+# The equations are printed in a way that is easy to copy and paste into another Python or JavaScript program.
+# There is another way to get it to print out LaTeX code, but I don't remember how to do that.
+# In the case of just copying the equations for simulations, change the N value to the number of links you want.
+
+
 from sympy import *
 from numpy import *
 # from  math import *
